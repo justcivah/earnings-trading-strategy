@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def setup_logging():
-    """Configura il sistema di logging centralizzato"""
+    """Setup logging system"""
     
     # Prendi il livello dal .env
     log_level = os.getenv('LOG_LEVEL', 'INFO').upper()
@@ -63,5 +63,5 @@ def setup_logging():
     return root_logger
 
 def get_logger(name):
-    """Crea un logger per un modulo specifico"""
+    """Create a more specific logger"""
     return logging.getLogger(name)
