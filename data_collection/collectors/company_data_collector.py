@@ -14,7 +14,9 @@ class CompanyDataCollector:
         for symbol in symbols:
             self.logger.debug(f"Fetching {symbol} data...")
             info = yf.Ticker(symbol).info
-            self.logger.debug(f"Fetched {symbol} data succesfully!")
+            self.logger.debug(f"Fetched {symbol} data succesfully")
 
             CompanyRepository.save_company(symbol, info.get('longName'), info.get('marketCap'), info.get('sector'))
             self.logger.debug(f"Company {symbol} succesfully saved in the database")
+        
+        self.logger.info("Company data succesfully collected")

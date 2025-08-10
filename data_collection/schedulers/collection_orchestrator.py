@@ -21,10 +21,10 @@ class CollectionOrchestrator:
         self.logger.info("=== DATA COLLECTION STARTED ===")
         
         # 1. Get the earning dates
-        self.earnings_collector.collect()
+        #self.earnings_collector.collect()
         
         # 2. Get stock data for the earnings dates
-        self.company_data_collector.collect()
+        #self.company_data_collector.collect()
 
         # 3. Get stock data for the earnings dates
         self.stock_data_collector.collect()

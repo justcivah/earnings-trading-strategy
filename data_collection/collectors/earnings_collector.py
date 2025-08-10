@@ -34,7 +34,6 @@ class EarningsCollector:
 
                 offset = 0
                 size = 100
-                fetched_any = False
 
                 while True:
                     url = (
@@ -69,7 +68,6 @@ class EarningsCollector:
                         if tables and not tables[0].empty:
                             earnings = tables[0]
                             processed_data = self.__save_earnings_data(earnings, date)
-                            fetched_any = True
 
                             # If less than requested size, no more pages
                             if processed_data < size:
@@ -123,5 +121,6 @@ class EarningsCollector:
 
         if not earnings.empty:
             EarningsRepository.save_earnings_dates(earnings.to_dict(orient="records"))
+            self.logger.debug(f"Earnings for date {date} succesfully saved in the database")
 
         return len(earnings) if not earnings.empty else 0
