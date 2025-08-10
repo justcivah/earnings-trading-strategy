@@ -1,13 +1,13 @@
-from sqlalchemy import Column, Integer, String, DateTime, Float, Text, ForeignKey, BigInteger
+from sqlalchemy import Column, Integer, String, Date, Float, Text, ForeignKey, BigInteger
 from sqlalchemy.orm import relationship, declarative_base
 
 Base = declarative_base()
 
 class Company(Base):
-    __tablename__ = 'companies'
+    __tablename__ = "companies"
     
     symbol = Column(String(10), primary_key=True)
-    name = Column(String(255), nullable=False)
+    name = Column(String(255))
     market_cap = Column(BigInteger)
     sector = Column(String(100))
     
@@ -17,11 +17,11 @@ class Company(Base):
     news_articles = relationship("NewsArticle", back_populates="company")
 
 class StockPrice(Base):
-    __tablename__ = 'stock_prices'
+    __tablename__ = "stock_prices"
     
     id = Column(Integer, primary_key=True)
-    symbol = Column(String(10), ForeignKey('companies.symbol'), nullable=False)
-    date = Column(DateTime, nullable=False)
+    symbol = Column(String(10), ForeignKey("companies.symbol"), nullable=False)
+    date = Column(Date, nullable=False)
     open = Column(Float, nullable=False)
     high = Column(Float, nullable=False)
     low = Column(Float, nullable=False)
@@ -32,25 +32,24 @@ class StockPrice(Base):
     company = relationship("Company", back_populates="stock_prices")
 
 class EarningsDate(Base):
-    __tablename__ = 'earnings_dates'
+    __tablename__ = "earnings_dates"
     
     id = Column(Integer, primary_key=True)
-    symbol = Column(String(10), ForeignKey('companies.symbol'), nullable=False)
-    date = Column(DateTime, nullable=False)
+    symbol = Column(String(10), ForeignKey("companies.symbol"), nullable=False)
+    date = Column(Date, nullable=False)
     eps_estimate = Column(Float)
     eps_actual = Column(Float)
-    revenue_estimate = Column(BigInteger)
-    revenue_actual = Column(BigInteger)
+    surprise = Column(Float)
     
     # Relationship
     company = relationship("Company", back_populates="earnings_dates")
 
 class NewsArticle(Base):
-    __tablename__ = 'news_articles'
+    __tablename__ = "news_articles"
     
     id = Column(Integer, primary_key=True)
-    symbol = Column(String(10), ForeignKey('companies.symbol'), nullable=False)
-    date = Column(DateTime, nullable=False)
+    symbol = Column(String(10), ForeignKey("companies.symbol"), nullable=False)
+    date = Column(Date, nullable=False)
     title = Column(Text, nullable=False)
     content = Column(Text)
     source = Column(String(255))

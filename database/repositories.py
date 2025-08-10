@@ -35,7 +35,7 @@ class CompanyRepository:
     def get_all_symbols() -> List[str]:
         """Get all company symbols"""
         with db_transaction() as session:
-            symbols = session.query(Company.symbol).all()
+            symbols = session.query(EarningsDate.symbol).all()
             return [s[0] for s in symbols]
 
     @staticmethod
@@ -56,13 +56,13 @@ class StockPriceRepository:
         with db_transaction() as session:
             for data in stock_data:
                 stock_price = StockPrice(
-                    symbol=data['symbol'],
-                    date=data['date'],
-                    open=data['open'],
-                    high=data['high'],
-                    low=data['low'],
-                    close=data['close'],
-                    volume=data['volume']
+                    symbol=data["symbol"],
+                    date=data["date"],
+                    open=data["open"],
+                    high=data["high"],
+                    low=data["low"],
+                    close=data["close"],
+                    volume=data["volume"]
                 )
                 session.add(stock_price)
             
@@ -98,12 +98,11 @@ class EarningsRepository:
         with db_transaction() as session:
             for data in earnings_data:
                 earnings = EarningsDate(
-                    symbol=data['symbol'],
-                    date=data['date'],
-                    eps_estimate=data.get('eps_estimate'),
-                    eps_actual=data.get('eps_actual'),
-                    revenue_estimate=data.get('revenue_estimate'),
-                    revenue_actual=data.get('revenue_actual')
+                    symbol=data["symbol"],
+                    date=data["date"],
+                    eps_estimate=data["eps_estimate"],
+                    eps_actual=data["eps_actual"],
+                    surprise=data["surprise"]
                 )
                 session.add(earnings)
             
@@ -135,13 +134,13 @@ class NewsRepository:
         with db_transaction() as session:
             for article in articles:
                 news = NewsArticle(
-                    symbol=article['symbol'],
-                    date=article['date'],
-                    title=article['title'],
-                    content=article.get('content'),
-                    source=article.get('source'),
-                    url=article.get('url'),
-                    sentiment_score=article.get('sentiment_score')
+                    symbol=article["symbol"],
+                    date=article["date"],
+                    title=article["title"],
+                    content=article.get("content"),
+                    source=article.get("source"),
+                    url=article.get("url"),
+                    sentiment_score=article.get("sentiment_score")
                 )
                 session.add(news)
             
@@ -164,8 +163,8 @@ class NewsRepository:
         """Update sentiment scores for articles"""
         with db_transaction() as session:
             for update in sentiment_updates:
-                article = session.query(NewsArticle).filter(NewsArticle.id == update['id']).first()
+                article = session.query(NewsArticle).filter(NewsArticle.id == update["id"]).first()
                 if article:
-                    article.sentiment_score = update['sentiment_score']
+                    article.sentiment_score = update["sentiment_score"]
             
             logger.info(f"Updated sentiment for {len(sentiment_updates)} articles")

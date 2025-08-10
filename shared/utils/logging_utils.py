@@ -9,26 +9,26 @@ def setup_logging():
     """Setup logging system"""
     
     # Prendi il livello dal .env
-    log_level = os.getenv('LOG_LEVEL', 'INFO').upper()
+    log_level = os.getenv("LOG_LEVEL").upper()
     
     # Converti string in livello logging
     level_mapping = {
-        'DEBUG': logging.DEBUG,
-        'INFO': logging.INFO,
-        'WARNING': logging.WARNING,
-        'ERROR': logging.ERROR,
-        'CRITICAL': logging.CRITICAL
+        "DEBUG": logging.DEBUG,
+        "INFO": logging.INFO,
+        "WARNING": logging.WARNING,
+        "ERROR": logging.ERROR,
+        "CRITICAL": logging.CRITICAL
     }
     
     log_level_num = level_mapping.get(log_level, logging.INFO)
     
     # Crea cartella logs se non esiste
-    os.makedirs('logs', exist_ok=True)
+    os.makedirs("logs", exist_ok=True)
     
     # Formato per i log
     formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"
     )
     
     # Root logger configuration
@@ -41,13 +41,13 @@ def setup_logging():
     console_handler.setFormatter(formatter)
     
     # File handler per tutti i log
-    timestamp = datetime.now().strftime('%Y%m%d')
-    file_handler = logging.FileHandler(f'logs/trading_simulation_{timestamp}.log')
+    timestamp = datetime.now().strftime("%Y%m%d")
+    file_handler = logging.FileHandler(f"logs/logs_{timestamp}.log", mode="w")
     file_handler.setLevel(logging.DEBUG)  # File cattura tutto
     file_handler.setFormatter(formatter)
     
     # File handler solo per errori
-    error_handler = logging.FileHandler(f'logs/errors_{timestamp}.log')
+    error_handler = logging.FileHandler(f"logs/errors_{timestamp}.log", mode="w")
     error_handler.setLevel(logging.ERROR)
     error_handler.setFormatter(formatter)
     
@@ -57,8 +57,10 @@ def setup_logging():
     root_logger.addHandler(error_handler)
     
     # Configurazioni specifiche per librerie esterne
-    logging.getLogger('requests').setLevel(logging.WARNING)
-    logging.getLogger('urllib3').setLevel(logging.WARNING)
+    logging.getLogger("requests").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    logging.getLogger("yfinance").setLevel(logging.WARNING)
+    logging.getLogger("peewee").setLevel(logging.WARNING)
     
     return root_logger
 
