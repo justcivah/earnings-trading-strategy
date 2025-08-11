@@ -30,9 +30,9 @@ class CollectionOrchestrator:
         #self.stock_data_collector.collect()
 
         # 4. Get company news
-        self.news_collector.collect()
+        #self.news_collector.collect()
 
         # 5. Compute sentiment
-        #self.sentiment_processor.process_all()
+        self.sentiment_processor.process()
         
         self.logger.info("=== DATA COLLECTION COMPLETED ===")

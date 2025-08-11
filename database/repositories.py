@@ -244,6 +244,32 @@ class NewsRepository:
                 }
                 for article in articles
             ]
+        
+    @staticmethod
+    def get_articles_for_date(date: datetime) -> List[Dict]:
+        """Get all news articles for a specific date"""
+        with db_transaction() as session:
+            articles = (
+                session.query(NewsArticle)
+                .filter(NewsArticle.date == date)
+                .order_by(NewsArticle.date.desc())
+                .all()
+            )
+
+            return [
+                {
+                    "id": article.id,
+                    "symbol": article.symbol,
+                    "date": article.date,
+                    "headline": article.headline,
+                    "summary": article.summary,
+                    "content": article.content,
+                    "source": article.source,
+                    "url": article.url,
+                    "sentiment_score": article.sentiment_score
+                }
+                for article in articles
+            ]
 
     @staticmethod
     def update_sentiment_scores(sentiment_updates: List[Dict]):
