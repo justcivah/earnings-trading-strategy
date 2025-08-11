@@ -48,13 +48,13 @@ class EarningsCollector:
                         # Handle cookie consent
                         try:
                             accept_button = page.wait_for_selector(
-                                'button:has-text("Accept all"), button:has-text("Accept"), '
+                                'button:has-text("Accept all"), button:has-text("Accept"),  button:has-text("Accetta tutto"), '
                                 'button[name="agree"], button[id*="accept"]',
                                 timeout=5000
                             )
                             if accept_button:
                                 accept_button.click()
-                                self.logger.debug("Accepted cookies")
+                                self.logger.debug("Accepted Yahoo cookies")
                                 page.wait_for_timeout(2500)
                         except:
                             self.logger.debug("No cookie consent found or already accepted")

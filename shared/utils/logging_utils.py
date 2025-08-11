@@ -61,6 +61,7 @@ def setup_logging():
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("yfinance").setLevel(logging.WARNING)
     logging.getLogger("peewee").setLevel(logging.WARNING)
+    logging.getLogger("trafilatura").setLevel(logging.WARNING)
     
     return root_logger
 

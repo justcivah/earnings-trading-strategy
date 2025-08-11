@@ -3,7 +3,6 @@ from shared.utils.validation_utils import ConfigDataValidator
 from data_collection.schedulers.collection_orchestrator import CollectionOrchestrator
 
 def main():
-    # Prima cosa: setup logging
     setup_logging()
     logger = get_logger(__name__)
     

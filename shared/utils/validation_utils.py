@@ -33,14 +33,14 @@ class ConfigDataValidator:
         min_score = float(os.getenv("MIN_SCORE_THRESHOLD"))
         if min_score < 0:
             self.logger.critical(f"Invalid MIN_SCORE_THRESHOLD: {min_score}")
-            raise ValueError("Minimum score threshold must be >= 0")
+            raise ValueError("Minimum score threshold must be greater than or equal to zero")
         self.logger.debug("MIN_SCORE_THRESHOLD validated")
 
         # Max positions validation
         max_positions = int(os.getenv("MAX_POSITIONS"))
         if max_positions < 0:
             self.logger.critical(f"Invalid MAX_POSITIONS: {max_positions}")
-            raise ValueError("Maximum positions must be >= 0")
+            raise ValueError("Maximum positions must be greater than or equal to zero")
         self.logger.debug("MAX_POSITIONS validated")
 
         # Scraping delay validation
@@ -49,13 +49,13 @@ class ConfigDataValidator:
             self.logger.critical(f"Invalid SCRAPING_DELAY: {scraping_delay}")
             raise ValueError("Scraping delay must be greater than zero")
         self.logger.debug("SCRAPING_DELAY validated")
-
-        # Max workers validation
-        max_workers = int(os.getenv("MAX_WORKERS"))
-        if max_workers <= 0:
-            self.logger.critical(f"Invalid MAX_WORKERS: {max_workers}")
-            raise ValueError("Maximum number of workers must be greater than zero")
-        self.logger.debug("MAX_WORKERS validated")
+        
+		# Scraping delay validation
+        data_fetch_padding_days = int(os.getenv("DATA_FETCH_PADDING_DAYS"))
+        if data_fetch_padding_days < 0:
+            self.logger.critical(f"Invalid DATA_FETCH_PADDING_DAYS: {data_fetch_padding_days}")
+            raise ValueError("Data fetch padding days must be greater than or equal to zero")
+        self.logger.debug("DATA_FETCH_PADDING_DAYS validated")
 
         # Weights validation
         sentiment_weight = float(os.getenv("SENTIMENT_WEIGHT"))

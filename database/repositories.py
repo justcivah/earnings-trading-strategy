@@ -39,15 +39,39 @@ class CompanyRepository:
             return [s[0] for s in symbols]
 
     @staticmethod
-    def get_companies_by_market_cap(min_cap: int, max_cap: int) -> List[Company]:
+    def get_companies_by_market_cap(min_cap: int, max_cap: int) -> List[Dict]:
         """Get companies within market cap range"""
         with db_transaction() as session:
-            return session.query(Company).filter(
+            companies = session.query(Company).filter(
                 and_(
                     Company.market_cap >= min_cap,
                     Company.market_cap <= max_cap
                 )
             ).all()
+            
+            return [
+                {
+                    "symbol": company.symbol,
+                    "name": company.name,
+                    "market_cap": company.market_cap,
+                    "sector": company.sector
+                }
+                for company in companies
+            ]
+        
+    @staticmethod
+    def get_company(symbol: str) -> Optional[Dict]:
+        """Get detailed company data by symbol."""
+        with db_transaction() as session:
+            company = session.query(Company).filter(Company.symbol == symbol).first()
+            if company:
+                return {
+                    "symbol": company.symbol,
+                    "name": company.name,
+                    "market_cap": company.market_cap,
+                    "sector": company.sector
+                }
+            return None
 
 class StockPriceRepository:
     @staticmethod
@@ -69,27 +93,52 @@ class StockPriceRepository:
             logger.info(f"Saved {len(stock_data)} stock price records")
 
     @staticmethod
-    def get_prices_for_symbol(symbol: str, start_date: datetime, end_date: datetime) -> List[StockPrice]:
+    def get_prices_for_symbol(symbol: str, start_date: datetime, end_date: datetime) -> List[Dict]:
         """Get stock prices for a symbol in date range"""
         with db_transaction() as session:
-            return session.query(StockPrice).filter(
+            prices = session.query(StockPrice).filter(
                 and_(
                     StockPrice.symbol == symbol,
                     StockPrice.date >= start_date,
                     StockPrice.date <= end_date
                 )
             ).order_by(StockPrice.date).all()
+            
+            return [
+                {
+                    "symbol": price.symbol,
+                    "date": price.date,
+                    "open": price.open,
+                    "high": price.high,
+                    "low": price.low,
+                    "close": price.close,
+                    "volume": price.volume
+                }
+                for price in prices
+            ]
 
     @staticmethod
-    def get_price_on_date(symbol: str, date: datetime) -> Optional[StockPrice]:
+    def get_price_on_date(symbol: str, date: datetime) -> Optional[Dict]:
         """Get stock price for a specific date"""
         with db_transaction() as session:
-            return session.query(StockPrice).filter(
+            price = session.query(StockPrice).filter(
                 and_(
                     StockPrice.symbol == symbol,
                     StockPrice.date == date
                 )
             ).first()
+            
+            if price:
+                return {
+                    "symbol": price.symbol,
+                    "date": price.date,
+                    "open": price.open,
+                    "high": price.high,
+                    "low": price.low,
+                    "close": price.close,
+                    "volume": price.volume
+                }
+            return None
 
 class EarningsRepository:
     @staticmethod
@@ -109,23 +158,45 @@ class EarningsRepository:
             logger.info(f"Saved {len(earnings_data)} earnings records")
 
     @staticmethod
-    def get_earnings_in_range(start_date: datetime, end_date: datetime) -> List[EarningsDate]:
+    def get_earnings_in_range(start_date: datetime, end_date: datetime) -> List[Dict]:
         """Get all earnings in date range"""
         with db_transaction() as session:
-            return session.query(EarningsDate).filter(
+            earnings = session.query(EarningsDate).filter(
                 and_(
                     EarningsDate.date >= start_date,
                     EarningsDate.date <= end_date
                 )
             ).order_by(EarningsDate.date).all()
+            
+            return [
+                {
+                    "symbol": earning.symbol,
+                    "date": earning.date,
+                    "eps_estimate": earning.eps_estimate,
+                    "eps_actual": earning.eps_actual,
+                    "surprise": earning.surprise
+                }
+                for earning in earnings
+            ]
 
     @staticmethod
-    def get_earnings_for_date(date: datetime) -> List[EarningsDate]:
+    def get_earnings_for_date(date: datetime) -> List[Dict]:
         """Get all earnings for a specific date"""
         with db_transaction() as session:
-            return session.query(EarningsDate).filter(
+            earnings = session.query(EarningsDate).filter(
                 EarningsDate.date == date
             ).all()
+            
+            return [
+                {
+                    "symbol": earning.symbol,
+                    "date": earning.date,
+                    "eps_estimate": earning.eps_estimate,
+                    "eps_actual": earning.eps_actual,
+                    "surprise": earning.surprise
+                }
+                for earning in earnings
+            ]
 
 class NewsRepository:
     @staticmethod
@@ -136,7 +207,8 @@ class NewsRepository:
                 news = NewsArticle(
                     symbol=article["symbol"],
                     date=article["date"],
-                    title=article["title"],
+                    headline=article["headline"],
+                    summary=article.get("summary"),
                     content=article.get("content"),
                     source=article.get("source"),
                     url=article.get("url"),
@@ -147,16 +219,31 @@ class NewsRepository:
             logger.info(f"Saved {len(articles)} news articles")
 
     @staticmethod
-    def get_articles_for_symbol_and_period(symbol: str, start_date: datetime, end_date: datetime) -> List[NewsArticle]:
+    def get_articles_for_symbol_and_period(symbol: str, start_date: datetime, end_date: datetime) -> List[Dict]:
         """Get news articles for symbol in date range"""
         with db_transaction() as session:
-            return session.query(NewsArticle).filter(
+            articles = session.query(NewsArticle).filter(
                 and_(
                     NewsArticle.symbol == symbol,
                     NewsArticle.date >= start_date,
                     NewsArticle.date <= end_date
                 )
             ).order_by(NewsArticle.date.desc()).all()
+            
+            return [
+                {
+                    "id": article.id,
+                    "symbol": article.symbol,
+                    "date": article.date,
+                    "headline": article.headline,
+                    "summary": article.summary,
+                    "content": article.content,
+                    "source": article.source,
+                    "url": article.url,
+                    "sentiment_score": article.sentiment_score
+                }
+                for article in articles
+            ]
 
     @staticmethod
     def update_sentiment_scores(sentiment_updates: List[Dict]):
