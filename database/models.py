@@ -56,6 +56,7 @@ class NewsArticle(Base):
     source = Column(String(255))
     url = Column(Text)
     sentiment_score = Column(Float)
+    sentiment_reasoning = Column(Text)
     
     # Relationship
     company = relationship("Company", back_populates="news_articles")

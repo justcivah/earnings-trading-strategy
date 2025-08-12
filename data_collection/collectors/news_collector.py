@@ -22,8 +22,8 @@ class NewsCollector:
         max_news_2_4_days = int(os.getenv("MAX_NEWS_2_4_DAYS"))
         max_news_5_7_days = int(os.getenv("MAX_NEWS_5_7_DAYS"))
 
-        for datetime in pd.date_range(start=start_date, end=end_date):
-            earnings = EarningsRepository.get_earnings_for_date(datetime.date())
+        for date in pd.date_range(start=start_date, end=end_date):
+            earnings = EarningsRepository.get_earnings_for_date(date.date())
             
             for earning in earnings:
                 company = CompanyRepository.get_company(earning["symbol"])
@@ -64,11 +64,16 @@ class NewsCollector:
         articles_to_save = []  # List to collect articles for this period
 
         try:
-            articles = finnhub_client.company_news(symbol, _from=start_date, to=end_date)
+            articles = finnhub_client.company_news(symbol, _from=start_date.strftime("%Y-%m-%d"), to=end_date.strftime("%Y-%m-%d"))
             yahoo_articles = [a for a in articles if a.get("source") == "Yahoo"]
-            yahoo_articles = yahoo_articles[:max_articles]
-
-            for article in yahoo_articles:
+            
+            article_index = 0
+            collected_count = 0
+            
+            while collected_count < max_articles and article_index < len(yahoo_articles):
+                article = yahoo_articles[article_index]
+                article_index += 1
+                
                 url = self.__get_redirect_url(article.get("url"))
 
                 try:
@@ -82,6 +87,11 @@ class NewsCollector:
                     if not content:
                         self.logger.warning(f"Could not extract content from {url}")
                         continue
+                    
+                    # Check if content is less than 1000 characters
+                    if len(content) < 1000:
+                        self.logger.debug(f"Article content too short ({len(content)} chars), skipping: {article.get('headline')}")
+                        continue
 
                     date = datetime.fromtimestamp(article.get("datetime")).date()
 
@@ -94,9 +104,11 @@ class NewsCollector:
                         "summary": article.get("summary"),
                         "source": article.get("source"),
                         "url": url,
-                        "sentiment_score": None
+                        "sentiment_score": None,
+                        "sentiment_reasoning": None
                     }
                     articles_to_save.append(article_data)
+                    collected_count += 1
 
                     self.logger.debug(f"Collected article: {article.get('headline')}")
 

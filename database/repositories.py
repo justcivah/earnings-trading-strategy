@@ -212,7 +212,8 @@ class NewsRepository:
                     content=article.get("content"),
                     source=article.get("source"),
                     url=article.get("url"),
-                    sentiment_score=article.get("sentiment_score")
+                    sentiment_score=article.get("sentiment_score"),
+                    sentiment_reasoning=article.get("sentiment_reasoning")
                 )
                 session.add(news)
             
@@ -240,7 +241,8 @@ class NewsRepository:
                     "content": article.content,
                     "source": article.source,
                     "url": article.url,
-                    "sentiment_score": article.sentiment_score
+                    "sentiment_score": article.sentiment_score,
+                    "sentiment_reasoning": article.sentiment_reasoning
                 }
                 for article in articles
             ]
@@ -266,18 +268,18 @@ class NewsRepository:
                     "content": article.content,
                     "source": article.source,
                     "url": article.url,
-                    "sentiment_score": article.sentiment_score
+                    "sentiment_score": article.sentiment_score,
+                    "sentiment_reasoning": article.sentiment_reasoning
                 }
                 for article in articles
             ]
 
     @staticmethod
-    def update_sentiment_scores(sentiment_updates: List[Dict]):
-        """Update sentiment scores for articles"""
+    def update_article_sentiment(article_id: int, sentiment_score: float, sentiment_reasoning: str):
+        """Update sentiment score for a single article"""
         with db_transaction() as session:
-            for update in sentiment_updates:
-                article = session.query(NewsArticle).filter(NewsArticle.id == update["id"]).first()
-                if article:
-                    article.sentiment_score = update["sentiment_score"]
-            
-            logger.info(f"Updated sentiment for {len(sentiment_updates)} articles")
+            article = session.query(NewsArticle).filter(NewsArticle.id == article_id).first()
+            if article:
+                article.sentiment_score = sentiment_score
+                article.sentiment_reasoning = sentiment_reasoning
+                logger.debug(f"Updated sentiment for article {article_id}")

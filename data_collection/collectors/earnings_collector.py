@@ -28,8 +28,8 @@ class EarningsCollector:
             start_date = os.getenv("START_DATE")
             end_date = os.getenv("END_DATE")
 
-            for datetime in pd.date_range(start=start_date, end=end_date):
-                date = datetime.date()
+            for date in pd.date_range(start=start_date, end=end_date):
+                date = date.date()
                 self.logger.debug(f"Getting earnings for date {date}")
 
                 offset = 0

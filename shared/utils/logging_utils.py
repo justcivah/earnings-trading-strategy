@@ -62,6 +62,9 @@ def setup_logging():
     logging.getLogger("yfinance").setLevel(logging.WARNING)
     logging.getLogger("peewee").setLevel(logging.WARNING)
     logging.getLogger("trafilatura").setLevel(logging.WARNING)
+    logging.getLogger("openai").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
     
     return root_logger
 
