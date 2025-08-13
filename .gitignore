@@ -207,3 +207,6 @@ __marimo__/
 *.db-journal
 *.sqlite
 *.sqlite3
+
+# Remove batch
+/batch_files/

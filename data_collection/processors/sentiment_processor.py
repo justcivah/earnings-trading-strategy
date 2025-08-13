@@ -113,7 +113,7 @@ class SentimentProcessor:
         with open(filename, "w", encoding="utf-8") as f:
             for article in articles:
                 company_data = CompanyRepository.get_company(article["symbol"])
-                company_name = company_data["name"] if company_data else article["symbol"]
+                company_name = company_data["name"] if company_data and company_data["name"] else article["symbol"]
                 
                 prompt = self.__build_prompt(
                     article_content=article["content"],
