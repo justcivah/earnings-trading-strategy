@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from simulation.strategies.daily_earnings_processor import DailyEarningsProcessor
+from simulation.processors.daily_earnings_processor import DailyEarningsProcessor
 from utils.logging_utils import get_logger
 
 class SimulationOrchestrator:
