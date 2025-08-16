@@ -29,7 +29,7 @@ class StockDataCollector:
 
 
         for symbol in symbols:
-            self.logger.debug(f"Fetching {symbol} stock data for the period {start_date} - {end_date}...")
+            self.logger.debug(f"Fetching {symbol} stock data for the extended period {extended_start} - {extended_end}...")
             stock_data = yf.download(symbol, start=extended_start, end=extended_end, interval="1d", auto_adjust=True, progress=False)
             self.logger.debug(f"Fetched {symbol} stock data succesfully")
 

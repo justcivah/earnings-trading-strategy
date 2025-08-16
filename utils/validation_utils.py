@@ -22,26 +22,12 @@ class ConfigDataValidator:
             raise ValueError("Start date must be before the end date")
         self.logger.debug("START_DATE and END_DATE validated")
 
-        # Initial capital validation
-        initial_capital = int(os.getenv("INITIAL_CAPITAL"))
-        if initial_capital <= 0:
-            self.logger.critical(f"Invalid INITIAL_CAPITAL: {initial_capital}")
-            raise ValueError("Initial capital must be greater than zero")
-        self.logger.debug("INITIAL_CAPITAL validated")
-
         # Minimum score threshold validation
         min_score = float(os.getenv("MIN_SCORE_THRESHOLD"))
         if min_score < 0:
             self.logger.critical(f"Invalid MIN_SCORE_THRESHOLD: {min_score}")
             raise ValueError("Minimum score threshold must be greater than or equal to zero")
         self.logger.debug("MIN_SCORE_THRESHOLD validated")
-
-        # Max positions validation
-        max_positions = int(os.getenv("MAX_POSITIONS"))
-        if max_positions < 0:
-            self.logger.critical(f"Invalid MAX_POSITIONS: {max_positions}")
-            raise ValueError("Maximum positions must be greater than or equal to zero")
-        self.logger.debug("MAX_POSITIONS validated")
 
         # Scraping delay validation
         scraping_delay = int(os.getenv("SCRAPING_DELAY"))
@@ -50,7 +36,7 @@ class ConfigDataValidator:
             raise ValueError("Scraping delay must be greater than zero")
         self.logger.debug("SCRAPING_DELAY validated")
         
-		# Scraping delay validation
+        # Scraping delay validation
         data_fetch_padding_days = int(os.getenv("DATA_FETCH_PADDING_DAYS"))
         if data_fetch_padding_days < 0:
             self.logger.critical(f"Invalid DATA_FETCH_PADDING_DAYS: {data_fetch_padding_days}")
@@ -71,7 +57,40 @@ class ConfigDataValidator:
         if rsi_period <= 0:
             self.logger.critical(f"Invalid RSI_PERIOD: {rsi_period}")
             raise ValueError("RSI period must be greater than zero")
+        if rsi_period > data_fetch_padding_days:
+            self.logger.critical(f"Invalid RSI_PERIOD: {rsi_period}")
+            raise ValueError("RSI period must be less than or equal to DATA_FETCH_PADDING_DAYS")
         self.logger.debug("RSI_PERIOD validated")
+        
+		# Volume trand period validation
+        volume_trand_period = int(os.getenv("VOLUME_TREND_PERIOD"))
+        if volume_trand_period <= 0:
+            self.logger.critical(f"Invalid VOLUME_TREND_PERIOD: {volume_trand_period}")
+            raise ValueError("Volume trand period must be greater than zero")
+        if volume_trand_period > data_fetch_padding_days:
+            self.logger.critical(f"Invalid VOLUME_TREND_PERIOD: {volume_trand_period}")
+            raise ValueError("Volume trand period must be less than or equal to DATA_FETCH_PADDING_DAYS")
+        self.logger.debug("VOLUME_TREND_PERIOD validated")
+        
+		# Volume average period validation
+        volume_average_period = int(os.getenv("VOLUME_AVERAGE_PERIOD"))
+        if volume_average_period <= 0:
+            self.logger.critical(f"Invalid VOLUME_AVERAGE_PERIOD: {volume_average_period}")
+            raise ValueError("Volume average period must be greater than zero")
+        if volume_average_period > data_fetch_padding_days:
+            self.logger.critical(f"Invalid VOLUME_AVERAGE_PERIOD: {volume_average_period}")
+            raise ValueError("Volume average period must be less than or equal to DATA_FETCH_PADDING_DAYS")
+        self.logger.debug("VOLUME_AVERAGE_PERIOD validated")
+        
+		# Volume accumulation distribution period validation
+        volume_accumulation_distribution_period = int(os.getenv("VOLUME_ACCUMULATION_DISTRIBUTION_PERIOD"))
+        if volume_accumulation_distribution_period <= 0:
+            self.logger.critical(f"Invalid VOLUME_ACCUMULATION_DISTRIBUTION_PERIOD: {volume_accumulation_distribution_period}")
+            raise ValueError("Volume average period must be greater than zero")
+        if volume_accumulation_distribution_period > data_fetch_padding_days:
+            self.logger.critical(f"Invalid VOLUME_ACCUMULATION_DISTRIBUTION_PERIOD: {volume_accumulation_distribution_period}")
+            raise ValueError("Volume accumulation distribution period must be less than or equal to DATA_FETCH_PADDING_DAYS")
+        self.logger.debug("VOLUME_ACCUMULATION_DISTRIBUTION_PERIOD validated")
 
         # Market cap validation
         min_cap = int(os.getenv("MIN_MARKET_CAP"))

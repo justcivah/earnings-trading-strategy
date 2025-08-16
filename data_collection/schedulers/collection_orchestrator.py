@@ -29,13 +29,13 @@ class CollectionOrchestrator:
         #self.company_data_collector.collect()
 
         # 3. Get stock data for the earnings dates
-        #self.stock_data_collector.collect()
+        self.stock_data_collector.collect()
 
         # 4. Get company news
         #self.news_collector.collect()
 
         # 5. Compute sentiment
-        self.sentiment_processor.process()
+        #self.sentiment_processor.process()
 		# Delete OpenAI batches and remote files
         #self.openai_cleanup.delete()
         
