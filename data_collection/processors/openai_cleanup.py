@@ -1,6 +1,6 @@
 import os
 from openai import OpenAI
-from shared.utils.logging_utils import get_logger
+from utils.logging_utils import get_logger
 
 
 class OpenAICleanup:

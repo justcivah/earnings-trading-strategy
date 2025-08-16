@@ -1,6 +1,6 @@
 import yfinance as yf
 from database.repositories import CompanyRepository
-from shared.utils.logging_utils import get_logger
+from utils.logging_utils import get_logger
 
 class CompanyDataCollector:
     def __init__(self):

@@ -2,7 +2,7 @@ import os
 import yfinance as yf
 from database.repositories import CompanyRepository
 from database.repositories import StockPriceRepository
-from shared.utils.logging_utils import get_logger
+from utils.logging_utils import get_logger
 from datetime import timedelta
 from datetime import datetime
 

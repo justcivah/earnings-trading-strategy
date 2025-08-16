@@ -3,7 +3,7 @@ import time
 import pandas as pd
 from io import StringIO
 from playwright.sync_api import sync_playwright
-from shared.utils.logging_utils import get_logger
+from utils.logging_utils import get_logger
 from database.repositories import EarningsRepository
 from playwright.sync_api import sync_playwright, TimeoutError
 

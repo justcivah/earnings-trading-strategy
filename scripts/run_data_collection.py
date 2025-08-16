@@ -1,5 +1,5 @@
-from shared.utils.logging_utils import setup_logging, get_logger
-from shared.utils.validation_utils import ConfigDataValidator
+from utils.logging_utils import setup_logging, get_logger
+from utils.validation_utils import ConfigDataValidator
 from data_collection.schedulers.collection_orchestrator import CollectionOrchestrator
 
 def main():

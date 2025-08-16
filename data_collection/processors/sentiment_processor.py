@@ -3,7 +3,7 @@ import json
 import time
 import pandas as pd
 from openai import OpenAI
-from shared.utils.logging_utils import get_logger
+from utils.logging_utils import get_logger
 from database.repositories import NewsRepository
 from database.repositories import CompanyRepository
 from datetime import timedelta
@@ -39,8 +39,8 @@ class SentimentProcessor:
         extended_start = start_date - timedelta(days=data_fetch_padding_days)
         extended_end = end_date + timedelta(days=data_fetch_padding_days)
         
-        #target_dates = pd.date_range(start=extended_start, end=extended_end).date
-        target_dates = [datetime.strptime(date_str, "%Y-%m-%d").date() for date_str in ["2025-04-01", "2025-04-02", "2025-04-03"]]
+        target_dates = pd.date_range(start=extended_start, end=extended_end).date
+        #target_dates = [datetime.strptime(date_str, "%Y-%m-%d").date() for date_str in ["2025-04-01", "2025-04-02", "2025-04-03"]]
         
         batch_ids = {}
 

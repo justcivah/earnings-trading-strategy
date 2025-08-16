@@ -6,7 +6,7 @@ import trafilatura
 import requests
 from datetime import datetime, timedelta
 from database.repositories import EarningsRepository, CompanyRepository, NewsRepository
-from shared.utils.logging_utils import get_logger
+from utils.logging_utils import get_logger
 
 class NewsCollector:
     def __init__(self):

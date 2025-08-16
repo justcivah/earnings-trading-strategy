@@ -1,7 +1,7 @@
 import os
 import datetime
 from dotenv import load_dotenv
-from shared.utils.logging_utils import get_logger
+from utils.logging_utils import get_logger
 
 load_dotenv()
 

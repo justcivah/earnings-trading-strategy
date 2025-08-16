@@ -4,7 +4,7 @@ from data_collection.collectors.stock_data_collector import StockDataCollector
 from data_collection.collectors.news_collector import NewsCollector
 from data_collection.processors.sentiment_processor import SentimentProcessor
 from data_collection.processors.openai_cleanup import OpenAICleanup
-from shared.utils.logging_utils import get_logger
+from utils.logging_utils import get_logger
 
 class CollectionOrchestrator:
     def __init__(self):
