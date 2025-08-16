@@ -3,7 +3,6 @@ from data_collection.collectors.company_data_collector import CompanyDataCollect
 from data_collection.collectors.stock_data_collector import StockDataCollector
 from data_collection.collectors.news_collector import NewsCollector
 from data_collection.processors.sentiment_processor import SentimentProcessor
-from data_collection.processors.sentiment_processing_specific import SentimentProcessorSpecific
 from data_collection.processors.openai_cleanup import OpenAICleanup
 from shared.utils.logging_utils import get_logger
 
@@ -17,7 +16,6 @@ class CollectionOrchestrator:
         self.news_collector = NewsCollector()
         self.sentiment_processor = SentimentProcessor()
         self.openai_cleanup = OpenAICleanup()
-        self.sentiment_processor_specific = SentimentProcessorSpecific()
 
     def run_full_collection(self):
         """Collects all the data"""
