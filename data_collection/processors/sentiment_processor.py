@@ -39,11 +39,13 @@ class SentimentProcessor:
         extended_start = start_date - timedelta(days=data_fetch_padding_days)
         extended_end = end_date + timedelta(days=data_fetch_padding_days)
         
+        #target_dates = pd.date_range(start=extended_start, end=extended_end).date
+        target_dates = [datetime.strptime(date_str, "%Y-%m-%d").date() for date_str in ["2025-04-01", "2025-04-02", "2025-04-03"]]
+        
         batch_ids = {}
 
         # Create and submit one batch per day
-        for date in pd.date_range(start=extended_start, end=extended_end):
-            date = date.date()
+        for date in target_dates:
             self.logger.debug(f"Fetching news from {date}")
             articles = NewsRepository.get_articles_for_date(date)
 
