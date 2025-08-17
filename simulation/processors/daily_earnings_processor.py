@@ -48,8 +48,8 @@ class DailyEarningsProcessor:
         
             rsi = self.rsi.compute_rsi(earnings["symbol"], date)
             volume_trend = self.volume.compute_volume_trend(earnings["symbol"], date)
-            volume_average = self.volume.compute_volume_average(earnings["symbol"], date)
-            volume_ac = self.volume.compute_volume_accumulation_distribution(earnings["symbol"], date)
+            volume_average = -self.volume.compute_volume_average(earnings["symbol"], date)
+            volume_ac = -self.volume.compute_volume_accumulation_distribution(earnings["symbol"], date)
             sentiment = self.sentiment.compute(earnings["symbol"], date)
             technical = (rsi + volume_trend + volume_average + volume_ac) / 4
 

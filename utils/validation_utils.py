@@ -24,7 +24,7 @@ class ConfigDataValidator:
 
         # Minimum score threshold validation
         min_score = float(os.getenv("MIN_SCORE_THRESHOLD"))
-        if min_score < 0:
+        if min_score < -1:
             self.logger.critical(f"Invalid MIN_SCORE_THRESHOLD: {min_score}")
             raise ValueError("Minimum score threshold must be greater than or equal to zero")
         self.logger.debug("MIN_SCORE_THRESHOLD validated")
