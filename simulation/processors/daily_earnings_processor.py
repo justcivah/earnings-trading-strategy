@@ -1,7 +1,9 @@
 import os
+from datetime import datetime, timedelta
 from utils.logging_utils import get_logger
 from database.repositories import EarningsRepository
 from database.repositories import CompanyRepository
+from database.repositories import StockPriceRepository
 from simulation.indexes.rsi import RSI
 from simulation.indexes.volume import Volume
 from simulation.indexes.sentiment import Sentiment
@@ -21,8 +23,9 @@ class DailyEarningsProcessor:
         max_market_cap = int(os.getenv("MAX_MARKET_CAP"))
 
         all_earnings = EarningsRepository.get_earnings_for_date(date)
-        filtered_earnings = [] 
-        operations = {}
+        filtered_earnings = []
+        processed_earnings = []
+        operations = []
 
         for earnings in all_earnings:
             company = CompanyRepository.get_company(earnings["symbol"])
@@ -30,22 +33,102 @@ class DailyEarningsProcessor:
             # Filter companies
             if company["market_cap"] is not None and min_market_cap <= company["market_cap"] <= max_market_cap:
                 filtered_earnings.append(earnings)
-            
+                
+        if len(all_earnings) == 0 or len(filtered_earnings) == 0:
+            self.logger.warning("No valid earnings for that date")
+            return {}
+
+        # Computing company score
+        for earnings in filtered_earnings:
+            technical_weight = float(os.getenv("TECHNICAL_WEIGHT"))
+            sentiment_weight = float(os.getenv("SENTIMENT_WEIGHT"))
+
+            company = CompanyRepository.get_company(earnings["symbol"])
+            self.logger.info(f"Processing data for company {company['name']} ({earnings['symbol']})")
+        
             rsi = self.rsi.compute_rsi(earnings["symbol"], date)
             volume_trend = self.volume.compute_volume_trend(earnings["symbol"], date)
             volume_average = self.volume.compute_volume_average(earnings["symbol"], date)
-            volume_accumulation_distribution = self.volume.compute_volume_accumulation_distribution(earnings["symbol"], date)
+            volume_ac = self.volume.compute_volume_accumulation_distribution(earnings["symbol"], date)
             sentiment = self.sentiment.compute(earnings["symbol"], date)
+            technical = (rsi + volume_trend + volume_average + volume_ac) / 4
 
-            print(f"RSI: {rsi}")
-            print(f"Volume trend: {volume_trend}")
-            print(f"Volume average: {volume_average}")
-            print(f"Volume accumulation/distribution: {volume_accumulation_distribution}")
-            print(f"Sentiment: {sentiment}")
-                
-        if len(all_earnings) == 0 or len(filtered_earnings) == 0:
-            self.logger.info("No valid earnings for that date")
+            final_score = technical * technical_weight + sentiment * sentiment_weight 
+
+            processed_earnings.append({
+                "symbol": earnings["symbol"],
+                "rsi": rsi,
+                "volume_trend": volume_trend,
+                "volume_average": volume_average,
+                "volume_ac": volume_ac,
+                "sentiment": sentiment,
+                "technical": technical,
+                "final_score": final_score
+            })
+
+        self.logger.debug("Completed earnings processing")
+
+        min_score_threshold = float(os.getenv("MIN_SCORE_THRESHOLD"))
+
+        # Considering only stocks with final score greater than MIN_SCORE_THRESHOLD
+        for earnings in processed_earnings:
+            if (earnings["final_score"] >= min_score_threshold):
+                buy_data = self.__get_stock_data_before_date(earnings["symbol"], date)
+                sell_data = self.__get_stock_data_after_date(earnings["symbol"], date)
+                earnings["buy_price"] = buy_data["open"]
+                earnings["sell_price"] = buy_data["close"]
+
+                earnings["profit_loss"] = earnings["sell_price"] - earnings["buy_price"]
+
+                company = CompanyRepository.get_company(earnings["symbol"])
+                self.logger.info(f"Company {company['name']} ({earnings['symbol']})")
+
+                if (earnings["buy_price"] == None or earnings["sell_price"] == None):
+                    self.logger.warning("Couldn't get stock data for that stock")
+                    continue
+
+                self.logger.debug("Scores:")
+                self.logger.debug(f"\tRSI: {earnings['rsi']}")
+                self.logger.debug(f"\tVolume trend: {earnings['volume_trend']}")
+                self.logger.debug(f"\tVolume average: {earnings['volume_average']}")
+                self.logger.debug(f"\tVolume accumulation/distribution: {earnings['volume_ac']}")
+                self.logger.debug(f"\tSentiment: {earnings['sentiment']}")
+                self.logger.debug(f"\tTechnical indexes average: {earnings['technical']}")
+                self.logger.debug(f"\tFinal score: {earnings['final_score']}")
+
+                self.logger.debug("Prices:")
+                self.logger.debug(f"\tBuy price: {earnings['buy_price']}")
+                self.logger.debug(f"\tSell price: {earnings['sell_price']}")
+                self.logger.debug(f"\tProfit/Loss: {earnings['profit_loss']}")
+
+                operations.append(earnings)
             
-        self.logger.info("Earnings succesfully processed")
+        self.logger.info("All earnings succesfully processed")
 
-        return filtered_earnings
+        return operations
+    
+    def __get_stock_data_before_date(self, symbol, date):
+        """Get stock data for the first valid day before (including) the given date"""
+
+        padding_days = int(os.getenv("DATA_FETCH_PADDING_DAYS"))
+        
+        for i in range(padding_days + 1):
+            search_date = date - timedelta(days=i)
+            stock_data = StockPriceRepository.get_price_on_date(symbol, search_date)
+            if stock_data:
+                return stock_data
+        
+        return None
+    
+    def __get_stock_data_after_date(self, symbol, date):
+        """Get stock data for the first valid day after (including) the given date"""
+
+        padding_days = int(os.getenv("DATA_FETCH_PADDING_DAYS"))
+        
+        for i in range(padding_days + 1):
+            search_date = date + timedelta(days=i)
+            stock_data = StockPriceRepository.get_price_on_date(symbol, search_date)
+            if stock_data:
+                return stock_data
+        
+        return None

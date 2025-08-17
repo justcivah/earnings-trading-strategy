@@ -17,7 +17,9 @@ class RSI:
         end_date = date
         
         prices = StockPriceRepository.get_prices_for_symbol(symbol, start_date, end_date)
-        self.logger.info(f"Volume A/D Debug - Period: {period}, Fetched {len(prices)} records")
+        
+        self.logger.debug(f"RSI - Period: {period}, Fetched {len(prices)} records")
+
         if len(prices) * 1.55 < period:
             self.logger.warning(f"Insufficient data for RSI calculation for {symbol}")
             return 0.0

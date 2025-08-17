@@ -18,5 +18,7 @@ class Sentiment:
             self.logger.warning(f"No news are available for {symbol}")
             return 0
 
+        self.logger.debug(f"Sentiment - Period: {start_date} - {date}, Fetched {len(news)} news")
+
         total_sentiment = sum(data["sentiment_score"] for data in news)        
         return total_sentiment / len(news)

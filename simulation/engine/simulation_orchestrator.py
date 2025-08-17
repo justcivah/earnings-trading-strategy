@@ -20,7 +20,7 @@ class SimulationOrchestrator:
         results = {}
 
         for date in pd.date_range(start=start_date, end=end_date).date:
-            daily_results = self.daily_earnings_processor.compute(date)
-            print(daily_results)
-        
+            results[date] = self.daily_earnings_processor.compute(date)
+            
+        print(results)
         self.logger.info("=== SIMULATION COMPLETED ===")

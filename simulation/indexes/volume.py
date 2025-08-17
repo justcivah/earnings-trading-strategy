@@ -14,18 +14,21 @@ class Volume:
         volume_trend_period = int(os.getenv("VOLUME_TREND_PERIOD"))
         start_date = date - timedelta(days=volume_trend_period + 2)
         
-        prices_last_days = StockPriceRepository.get_prices_for_symbol(symbol, start_date, date)
-        if len(prices_last_days) * 1.25 < volume_trend_period:
+        prices = StockPriceRepository.get_prices_for_symbol(symbol, start_date, date)
+
+        self.logger.debug(f"Volume trend - Period: {volume_trend_period}, Fetched {len(prices)} records")
+
+        if len(prices) * 1.55 < volume_trend_period:
             self.logger.warning(f"Insufficient data for volume trend calculation for {symbol}")
             return 0.0
         
-        prices_last_days.sort(key=lambda x: x['date'])
-        prices_last_days = prices_last_days[-volume_trend_period:]  # Get last N days
+        prices.sort(key=lambda x: x['date'])
+        prices = prices[-volume_trend_period:]  # Get last N days
         
         trend_scores = []
-        for i in range(1, len(prices_last_days)):
-            current_vol = prices_last_days[i]['volume']
-            previous_vol = prices_last_days[i-1]['volume']
+        for i in range(1, len(prices)):
+            current_vol = prices[i]['volume']
+            previous_vol = prices[i-1]['volume']
             if current_vol > previous_vol:
                 trend_scores.append(1)
             elif current_vol < previous_vol:
@@ -46,6 +49,8 @@ class Volume:
         
         start_date = date - timedelta(days=volume_average_period + volume_trend_period + 5)
         prices = StockPriceRepository.get_prices_for_symbol(symbol, start_date, date)
+
+        self.logger.debug(f"Volume average - Period: {volume_average_period}, Fetched {len(prices)} records")
         
         if len(prices) * 1.25 < volume_average_period:
             self.logger.warning(f"Insufficient data for volume average calculation for {symbol}")
@@ -85,6 +90,8 @@ class Volume:
         # Get data for the specified period plus buffer for trading days
         start_date = date - timedelta(days=volume_ad_period + 5)
         prices = StockPriceRepository.get_prices_for_symbol(symbol, start_date, date)
+
+        self.logger.debug(f"Volume accumulation/distribution - Period: {volume_ad_period}, Fetched {len(prices)} records")
         
         if len(prices) * 1.25 < volume_ad_period:
             self.logger.warning(f"Insufficient data for volume accumulation/distribution calculation for {symbol}")
