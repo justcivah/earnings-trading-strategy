@@ -79,18 +79,35 @@ class StockPriceRepository:
         """Batch save stock prices"""
         with db_transaction() as session:
             for data in stock_data:
-                stock_price = StockPrice(
-                    symbol=data["symbol"],
-                    date=data["date"],
-                    open=data["open"],
-                    high=data["high"],
-                    low=data["low"],
-                    close=data["close"],
-                    volume=data["volume"]
-                )
-                session.add(stock_price)
+                # Check if record already exists
+                existing = session.query(StockPrice).filter(
+                    and_(
+                        StockPrice.symbol == data["symbol"],
+                        StockPrice.date == data["date"]
+                    )
+                ).first()
+                
+                if existing:
+                    # Update existing record
+                    existing.open = data["open"]
+                    existing.high = data["high"]
+                    existing.low = data["low"]
+                    existing.close = data["close"]
+                    existing.volume = data["volume"]
+                else:
+                    # Create new record
+                    stock_price = StockPrice(
+                        symbol=data["symbol"],
+                        date=data["date"],
+                        open=data["open"],
+                        high=data["high"],
+                        low=data["low"],
+                        close=data["close"],
+                        volume=data["volume"]
+                    )
+                    session.add(stock_price)
             
-            logger.info(f"Saved {len(stock_data)} stock price records")
+            logger.info(f"Processed {len(stock_data)} stock price records")
 
     @staticmethod
     def get_prices_for_symbol(symbol: str, start_date: datetime, end_date: datetime) -> List[Dict]:
@@ -146,16 +163,31 @@ class EarningsRepository:
         """Batch save earnings dates"""
         with db_transaction() as session:
             for data in earnings_data:
-                earnings = EarningsDate(
-                    symbol=data["symbol"],
-                    date=data["date"],
-                    eps_estimate=data["eps_estimate"],
-                    eps_actual=data["eps_actual"],
-                    surprise=data["surprise"]
-                )
-                session.add(earnings)
+                # Check if record already exists
+                existing = session.query(EarningsDate).filter(
+                    and_(
+                        EarningsDate.symbol == data["symbol"],
+                        EarningsDate.date == data["date"]
+                    )
+                ).first()
+                
+                if existing:
+                    # Update existing record
+                    existing.eps_estimate = data["eps_estimate"]
+                    existing.eps_actual = data["eps_actual"]
+                    existing.surprise = data["surprise"]
+                else:
+                    # Create new record
+                    earnings = EarningsDate(
+                        symbol=data["symbol"],
+                        date=data["date"],
+                        eps_estimate=data["eps_estimate"],
+                        eps_actual=data["eps_actual"],
+                        surprise=data["surprise"]
+                    )
+                    session.add(earnings)
             
-            logger.info(f"Saved {len(earnings_data)} earnings records")
+            logger.info(f"Processed {len(earnings_data)} earnings records")
 
     @staticmethod
     def get_earnings_in_range(start_date: datetime, end_date: datetime) -> List[Dict]:
@@ -204,20 +236,46 @@ class NewsRepository:
         """Batch save news articles"""
         with db_transaction() as session:
             for article in articles:
-                news = NewsArticle(
-                    symbol=article["symbol"],
-                    date=article["date"],
-                    headline=article["headline"],
-                    summary=article.get("summary"),
-                    content=article.get("content"),
-                    source=article.get("source"),
-                    url=article.get("url"),
-                    sentiment_score=article.get("sentiment_score"),
-                    sentiment_reasoning=article.get("sentiment_reasoning")
-                )
-                session.add(news)
+                # Check if article already exists (by URL or symbol+date+headline)
+                existing = session.query(NewsArticle).filter(
+                    NewsArticle.url == article.get("url")
+                ).first()
+                
+                if not existing and article.get("url"):
+                    # If no URL match, check by symbol+date+headline combo
+                    existing = session.query(NewsArticle).filter(
+                        and_(
+                            NewsArticle.symbol == article["symbol"],
+                            NewsArticle.date == article["date"],
+                            NewsArticle.headline == article["headline"]
+                        )
+                    ).first()
+                
+                if existing:
+                    # Update existing record
+                    existing.summary = article.get("summary")
+                    existing.content = article.get("content")
+                    existing.source = article.get("source")
+                    if article.get("sentiment_score") is not None:
+                        existing.sentiment_score = article.get("sentiment_score")
+                    if article.get("sentiment_reasoning") is not None:
+                        existing.sentiment_reasoning = article.get("sentiment_reasoning")
+                else:
+                    # Create new record
+                    news = NewsArticle(
+                        symbol=article["symbol"],
+                        date=article["date"],
+                        headline=article["headline"],
+                        summary=article.get("summary"),
+                        content=article.get("content"),
+                        source=article.get("source"),
+                        url=article.get("url"),
+                        sentiment_score=article.get("sentiment_score"),
+                        sentiment_reasoning=article.get("sentiment_reasoning")
+                    )
+                    session.add(news)
             
-            logger.info(f"Saved {len(articles)} news articles")
+            logger.info(f"Processed {len(articles)} news articles")
 
     @staticmethod
     def get_articles_for_symbol_and_period(symbol: str, start_date: datetime, end_date: datetime) -> List[Dict]:
