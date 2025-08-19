@@ -16,13 +16,11 @@ class SimulationOrchestrator:
         start_date = os.getenv("START_DATE")
         end_date = os.getenv("END_DATE")
         
-        results = {}
         all_operations = []
         daily_investments = []
         
         for date in pd.date_range(start=start_date, end=end_date).date:
             daily_operations = self.daily_earnings_processor.compute(date)
-            results[date] = daily_operations
             all_operations.extend(daily_operations)
             
             # Calculate daily investment amount
@@ -33,7 +31,6 @@ class SimulationOrchestrator:
         self._display_simulation_statistics(all_operations, daily_investments, start_date, end_date)
         
         self.logger.info("=== SIMULATION COMPLETED ===")
-        return results
 
     def _display_simulation_statistics(self, all_operations, daily_investments, start_date, end_date):
         """Calculate and display overall simulation statistics"""

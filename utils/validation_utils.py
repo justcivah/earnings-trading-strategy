@@ -36,12 +36,26 @@ class ConfigDataValidator:
             raise ValueError("Scraping delay must be greater than zero")
         self.logger.debug("SCRAPING_DELAY validated")
         
-        # Scraping delay validation
+        # Padding days 
         data_fetch_padding_days = int(os.getenv("DATA_FETCH_PADDING_DAYS"))
         if data_fetch_padding_days < 0:
             self.logger.critical(f"Invalid DATA_FETCH_PADDING_DAYS: {data_fetch_padding_days}")
             raise ValueError("Data fetch padding days must be greater than or equal to zero")
         self.logger.debug("DATA_FETCH_PADDING_DAYS validated")
+        
+		# Scraping delay validation
+        equal_investment = os.getenv("EQUAL_INVESTMENT")
+        if equal_investment.lower() not in ["true", "false"]:
+            self.logger.critical(f"Invalid EQUAL_INVESTMENT: {equal_investment}")
+            raise ValueError("Equal investment must be true or false")
+        self.logger.debug("EQUAL_INVESTMENT validated")
+        
+		# Padding days 
+        investment_per_stock = int(os.getenv("INVESTMENT_PER_STOCK"))
+        if investment_per_stock <= 0:
+            self.logger.critical(f"Invalid INVESTMENT_PER_STOCK: {investment_per_stock}")
+            raise ValueError("Investment per stock must be greater than zero")
+        self.logger.debug("INVESTMENT_PER_STOCK validated")
 
         # Weights validation
         sentiment_weight = float(os.getenv("SENTIMENT_WEIGHT"))

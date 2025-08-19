@@ -75,11 +75,20 @@ class DailyEarningsProcessor:
             if (earnings["final_score"] >= min_score_threshold):
                 buy_data = self.__get_stock_data_before_date(earnings["symbol"], date)
                 sell_data = self.__get_stock_data_after_date(earnings["symbol"], date)
-                earnings["buy_price"] = buy_data["open"]
-                earnings["sell_price"] = buy_data["close"]
 
-                earnings["profit_loss"] = earnings["sell_price"] - earnings["buy_price"]
+                # Decide whether to invest the same amount in all companies, or buy one stock per company
+                if os.getenv("EQUAL_INVESTMENT").lower() in ["true"]:
+                    investment_amount = int(os.getenv("INVESTMENT_PER_STOCK"))
 
+                    earnings["profit_loss"] = (investment_amount / buy_data["open"]) * (sell_data["close"] - buy_data["open"])
+                    earnings["buy_price"] = investment_amount
+                    earnings["sell_price"] = earnings["buy_price"] + earnings["profit_loss"]
+
+                else:
+                    earnings["profit_loss"] = sell_data["close"] - buy_data["open"]
+                    earnings["buy_price"] = buy_data["open"]
+                    earnings["sell_price"] = sell_data["close"]
+                
                 company = CompanyRepository.get_company(earnings["symbol"])
                 self.logger.info(f"Company {company['name']} ({earnings['symbol']})")
 
@@ -112,7 +121,7 @@ class DailyEarningsProcessor:
 
         padding_days = int(os.getenv("DATA_FETCH_PADDING_DAYS"))
         
-        for i in range(padding_days + 1):
+        for i in range(1, padding_days + 1):
             search_date = date - timedelta(days=i)
             stock_data = StockPriceRepository.get_price_on_date(symbol, search_date)
             if stock_data:
@@ -125,7 +134,7 @@ class DailyEarningsProcessor:
 
         padding_days = int(os.getenv("DATA_FETCH_PADDING_DAYS"))
         
-        for i in range(padding_days + 1):
+        for i in range(1, padding_days + 1):
             search_date = date + timedelta(days=i)
             stock_data = StockPriceRepository.get_price_on_date(symbol, search_date)
             if stock_data:
