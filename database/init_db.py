@@ -2,7 +2,7 @@ import os
 from sqlalchemy import create_engine, text
 from database.models import Base
 from database.connection import DATABASE_URL
-from shared.utils.logging_utils import setup_logging, get_logger
+from utils.logging_utils import setup_logging, get_logger
 
 setup_logging()
 logger = get_logger(__name__)

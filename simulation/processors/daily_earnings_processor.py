@@ -82,7 +82,7 @@ class DailyEarningsProcessor:
 
                     earnings["profit_loss"] = (investment_amount / buy_data["open"]) * (sell_data["close"] - buy_data["open"])
                     earnings["buy_price"] = investment_amount
-                    earnings["sell_price"] = earnings["buy_price"] + earnings["profit_loss"]
+                    earnings["sell_price"] = investment_amount + earnings["profit_loss"]
 
                 else:
                     earnings["profit_loss"] = sell_data["close"] - buy_data["open"]

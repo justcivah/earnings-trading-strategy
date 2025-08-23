@@ -13,10 +13,10 @@ from datetime import datetime
 class SentimentProcessor:
     def __init__(self):
         self.logger = get_logger(__name__)
-        
+
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         self.model = os.getenv("OPENAI_MODEL")
-        
+
         self.base_dir = "batch_files"
         self.input_dir = os.path.join(self.base_dir, "input")
         self.output_dir = os.path.join(self.base_dir, "output")
@@ -38,10 +38,40 @@ class SentimentProcessor:
         # Extend the date range
         extended_start = start_date - timedelta(days=data_fetch_padding_days)
         extended_end = end_date + timedelta(days=data_fetch_padding_days)
-        
-        target_dates = pd.date_range(start=extended_start, end=extended_end).date
-        #target_dates = [datetime.strptime(date_str, "%Y-%m-%d").date() for date_str in ["2025-04-01", "2025-04-02", "2025-04-03"]]
-        
+
+        # target_dates = pd.date_range(start=extended_start, end=extended_end).date
+        target_dates = [
+            datetime.strptime(date_str, "%Y-%m-%d").date()
+            for date_str in [
+                "2025-02-25",
+                "2025-02-26",
+                "2025-03-04",
+                "2025-03-05",
+                "2025-03-06",
+                "2025-03-08",
+                "2025-03-09",
+                "2025-03-11",
+                "2025-03-12",
+                "2025-03-13",
+                "2025-03-14",
+                "2025-03-15",
+                "2025-03-16",
+                "2025-03-17",
+                "2025-03-18",
+                "2025-03-19",
+                "2025-03-20",
+                "2025-03-21",
+                "2025-03-22",
+                "2025-03-23",
+                "2025-03-24",
+                "2025-03-25",
+                "2025-03-26",
+                "2025-03-27",
+                "2025-03-28",
+                "2025-03-30",
+            ]
+        ]
+
         batch_ids = {}
 
         # Create and submit one batch per day
@@ -115,14 +145,18 @@ class SentimentProcessor:
         with open(filename, "w", encoding="utf-8") as f:
             for article in articles:
                 company_data = CompanyRepository.get_company(article["symbol"])
-                company_name = company_data["name"] if company_data and company_data["name"] else article["symbol"]
-                
+                company_name = (
+                    company_data["name"]
+                    if company_data and company_data["name"]
+                    else article["symbol"]
+                )
+
                 prompt = self.__build_prompt(
                     article_content=article["content"],
                     symbol=article["symbol"],
-                    company=company_name
+                    company=company_name,
                 )
-                
+
                 request = {
                     "custom_id": f"article-{article['id']}",
                     "method": "POST",
@@ -139,15 +173,22 @@ class SentimentProcessor:
                                     "type": "object",
                                     "properties": {
                                         "reasoning_process": {"type": "string"},
-                                        "sentiment_score": {"type": "number", "minimum": -1, "maximum": 1}
+                                        "sentiment_score": {
+                                            "type": "number",
+                                            "minimum": -1,
+                                            "maximum": 1,
+                                        },
                                     },
-                                    "required": ["reasoning_process", "sentiment_score"],
-                                    "additionalProperties": False
+                                    "required": [
+                                        "reasoning_process",
+                                        "sentiment_score",
+                                    ],
+                                    "additionalProperties": False,
                                 },
-                                "strict": True
+                                "strict": True,
                             }
                         },
-                        "reasoning": {"effort": "low"}
+                        "reasoning": {"effort": "low"},
                     },
                 }
                 f.write(json.dumps(request) + "\n")
@@ -180,13 +221,17 @@ class SentimentProcessor:
                 status_obj = self.client.batches.retrieve(batch_id)
                 status = status_obj.status
 
-                self.logger.info(f"[{idx}/{total_batches}] Batch {batch_id} status: {status}")
+                self.logger.info(
+                    f"[{idx}/{total_batches}] Batch {batch_id} status: {status}"
+                )
 
                 if status == "completed":
                     completed[batch_id] = status_obj.output_file_id
 
                 elif status in ["failed", "expired", "cancelled"]:
-                    self.logger.error(f"[{idx}/{total_batches}] Batch {batch_id} ended with status: {status}")
+                    self.logger.error(
+                        f"[{idx}/{total_batches}] Batch {batch_id} ended with status: {status}"
+                    )
                     completed[batch_id] = None
 
             if len(completed) < total_batches:
@@ -207,18 +252,26 @@ class SentimentProcessor:
 
                 try:
                     if data["response"]["status_code"] != 200:
-                        self.logger.error(f"Request failed for {data.get('custom_id')}: {data['response']}")
+                        self.logger.error(
+                            f"Request failed for {data.get('custom_id')}: {data['response']}"
+                        )
                         continue
-                    
-                    content = data["response"]["body"]["output"][1]["content"][0]["text"]
+
+                    content = data["response"]["body"]["output"][1]["content"][0][
+                        "text"
+                    ]
 
                     parsed = json.loads(content)
                     sentiment_score = parsed["sentiment_score"]
                     sentiment_reasoning = parsed["reasoning_process"]
                     article_id = int(data["custom_id"].split("-")[1])
 
-                    NewsRepository.update_article_sentiment(article_id, sentiment_score, sentiment_reasoning)
+                    NewsRepository.update_article_sentiment(
+                        article_id, sentiment_score, sentiment_reasoning
+                    )
 
                 except Exception as e:
-                    self.logger.error(f"Error parsing result for {data.get('custom_id')}: {e}")
+                    self.logger.error(
+                        f"Error parsing result for {data.get('custom_id')}: {e}"
+                    )
                     self.logger.error(f"Response structure: {data.get('response', {})}")
