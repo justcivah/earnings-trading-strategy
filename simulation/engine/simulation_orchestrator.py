@@ -99,7 +99,5 @@ class SimulationOrchestrator:
         print(f"Average Profit per Operation: ${avg_profit_per_operation:.2f}")
         print(f"Win Rate: {win_rate:.2f}%")
         print(f"Profitable: {len(profitable_ops)} | Losing: {len(losing_ops)} | Break-even: {len(break_even_ops)}")
-        print(f"Avg Profitable Gain: ${avg_profitable_gain:.2f}")
-        print(f"Avg Losing Loss: ${avg_losing_loss:.2f}")
         print(f"Average Final Score: {avg_final_score:.4f}")
         print("="*60 + "\n")

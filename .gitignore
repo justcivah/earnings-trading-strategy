@@ -208,5 +208,6 @@ __marimo__/
 *.sqlite
 *.sqlite3
 
-# Remove batch
+# Remove batch and logs
 /batch_files/
+/logs/

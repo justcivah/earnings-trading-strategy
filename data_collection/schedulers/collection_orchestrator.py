@@ -23,16 +23,16 @@ class CollectionOrchestrator:
         self.logger.info("=== DATA COLLECTION STARTED ===")
         
         # 1. Get the earning dates
-        #self.earnings_collector.collect()
+        self.earnings_collector.collect()
         
         # 2. Get company data from the earnings dates
-        #self.company_data_collector.collect()
+        self.company_data_collector.collect()
 
         # 3. Get stock data for the earnings dates
-        #self.stock_data_collector.collect()
+        self.stock_data_collector.collect()
 
         # 4. Get company news
-        #self.news_collector.collect()
+        self.news_collector.collect()
 
         # 5. Compute sentiment
         self.sentiment_processor.process()

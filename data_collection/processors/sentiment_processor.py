@@ -39,38 +39,8 @@ class SentimentProcessor:
         extended_start = start_date - timedelta(days=data_fetch_padding_days)
         extended_end = end_date + timedelta(days=data_fetch_padding_days)
 
-        # target_dates = pd.date_range(start=extended_start, end=extended_end).date
-        target_dates = [
-            datetime.strptime(date_str, "%Y-%m-%d").date()
-            for date_str in [
-                "2025-02-25",
-                "2025-02-26",
-                "2025-03-04",
-                "2025-03-05",
-                "2025-03-06",
-                "2025-03-08",
-                "2025-03-09",
-                "2025-03-11",
-                "2025-03-12",
-                "2025-03-13",
-                "2025-03-14",
-                "2025-03-15",
-                "2025-03-16",
-                "2025-03-17",
-                "2025-03-18",
-                "2025-03-19",
-                "2025-03-20",
-                "2025-03-21",
-                "2025-03-22",
-                "2025-03-23",
-                "2025-03-24",
-                "2025-03-25",
-                "2025-03-26",
-                "2025-03-27",
-                "2025-03-28",
-                "2025-03-30",
-            ]
-        ]
+        target_dates = pd.date_range(start=extended_start, end=extended_end).date
+        #xstarget_dates = [datetime.strptime(date_str, "%Y-%m-%d").date()for date_str in ["2025-04-30"]]
 
         batch_ids = {}
 
@@ -96,7 +66,7 @@ class SentimentProcessor:
             self.logger.info(f"Submitted batch for {date} with ID {batch_id}")
 
         # Wait for all batches to complete
-        results = self.__wait_for_all_batches(list(batch_ids.keys()), 300)
+        results = self.__wait_for_all_batches(list(batch_ids.keys()), 60)
 
         # Download, process, and clean up
         for batch_id, output_file_id in results.items():

@@ -36,7 +36,7 @@ class DailyEarningsProcessor:
                 
         if len(all_earnings) == 0 or len(filtered_earnings) == 0:
             self.logger.warning("No valid earnings for that date")
-            return {}
+            return []
 
         # Computing company score
         for earnings in filtered_earnings:
@@ -76,6 +76,14 @@ class DailyEarningsProcessor:
                 buy_data = self.__get_stock_data_before_date(earnings["symbol"], date)
                 sell_data = self.__get_stock_data_after_date(earnings["symbol"], date)
 
+                if buy_data is None or sell_data is None:
+                    self.logger.warning(f"Couldn't get stock data for {earnings['symbol']} on {date}")
+
+                    earnings["profit_loss"] = 0
+                    earnings["buy_price"] = 0
+                    earnings["sell_price"] = 0
+                    continue
+
                 # Decide whether to invest the same amount in all companies, or buy one stock per company
                 if os.getenv("EQUAL_INVESTMENT").lower() in ["true"]:
                     investment_amount = int(os.getenv("INVESTMENT_PER_STOCK"))
@@ -91,10 +99,6 @@ class DailyEarningsProcessor:
                 
                 company = CompanyRepository.get_company(earnings["symbol"])
                 self.logger.info(f"Company {company['name']} ({earnings['symbol']})")
-
-                if (earnings["buy_price"] == None or earnings["sell_price"] == None):
-                    self.logger.warning("Couldn't get stock data for that stock")
-                    continue
 
                 self.logger.debug("Scores:")
                 self.logger.debug(f"\tRSI: {earnings['rsi']}")
